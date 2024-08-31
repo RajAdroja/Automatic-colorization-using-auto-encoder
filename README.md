@@ -1,4 +1,5 @@
 **Colorized Autoencoder for CIFAR-10 Dataset**
+
 This repository contains an implementation of an autoencoder model for colorizing grayscale images using the CIFAR-10 dataset. The autoencoder consists of an encoder and decoder network built with Keras and TensorFlow.
 
 Project Overview
