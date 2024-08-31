@@ -18,7 +18,7 @@ Matplotlib
 Clone the repository:
 
 bash
-git clone https://github.com/yourusername/colorized-autoencoder.git
+git clone https://github.com/RajAdroja/Automatic-colorization-using-auto-encoder.git
 cd colorized-autoencoder
 
 Install the required packages:
