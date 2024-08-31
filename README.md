@@ -1,106 +1,44 @@
-**Colorized Autoencoder for CIFAR-10 Dataset**
+**Colorization Autoencoder**
+This project involves the creation and training of an autoencoder neural network designed to colorize grayscale images. It leverages the CIFAR-10 dataset, which contains RGB images, to train an autoencoder that can take grayscale images as input and output colorized versions of those images.
 
-This repository contains an implementation of an autoencoder model for colorizing grayscale images using the CIFAR-10 dataset. The autoencoder consists of an encoder and decoder network built with Keras and TensorFlow.
+**Introduction**
+The project aims to build an autoencoder model capable of colorizing grayscale images. An autoencoder is a type of neural network used for unsupervised learning tasks. In this case, the autoencoder learns to encode grayscale images into a latent representation and then decode this representation to reconstruct the original RGB images.
 
-Project Overview
-Dataset: CIFAR-10
-Model: Autoencoder
-Objective: Convert color images to grayscale and then reconstruct the original color images using an autoencoder model.
-Requirements
-Python 3.x
-TensorFlow
-Keras
-NumPy
-OpenCV
-Matplotlib
+**Libraries Used**
+The project relies on several Python libraries and frameworks:
 
-**Installation**
+NumPy: For numerical operations and array manipulations.
+Matplotlib: For plotting and visualization.
+OpenCV: For image processing tasks such as converting images to grayscale.
+Keras: For building and training the neural network models.
 
-Clone the repository:
+**Data Loading and Preprocessing**
+The CIFAR-10 dataset is used for this project, which contains 60,000 32x32 color images across 10 classes. The data is loaded and split into training and testing sets. Each image is converted from RGB to grayscale to serve as input for the autoencoder.
 
-bash
-git clone https://github.com/RajAdroja/Automatic-colorization-using-auto-encoder.git
-cd colorized-autoencoder
-
-Install the required packages:
-bash
-pip install tensorflow keras numpy opencv-python matplotlib
-
-**Usage**
-Import Libraries
-
-import numpy as np
-import matplotlib.pyplot as plt
-import os
-import cv2
-from keras.layers import Dense, Input, Conv2D, Flatten, Reshape, Conv2DTranspose
-from keras.models import Model
-from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
-from keras.datasets import cifar10
-from keras.utils import plot_model
-from keras import backend as K
-
-**Data Preprocessing**
-Load CIFAR-10 Dataset:
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
-
-Convert RGB Images to Grayscale:
-def rgb_gray(img):
-    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-x_train_Gray = np.array([rgb_gray(img) for img in x_train])
-x_test_Gray = np.array([rgb_gray(img) for img in x_test])
-
-Normalize and Reshape Data:
-x_train = x_train.astype('float32') / 255
-x_test = x_test.astype('float32') / 255
-x_train_Gray = x_train_Gray.astype('float32') / 255
-x_test_Gray = x_test_Gray.astype('float32') / 255
-
-img_dim = x_train.shape[1]
-x_train = x_train.reshape(x_train.shape[0], img_dim, img_dim, 3)
-x_test = x_test.reshape(x_test.shape[0], img_dim, img_dim, 3)
-x_train_Gray = x_train_Gray.reshape(x_train_Gray.shape[0], img_dim, img_dim, 1)
-x_test_Gray = x_test_Gray.reshape(x_test_Gray.shape[0], img_dim, img_dim, 1)
+Loading Data: The CIFAR-10 dataset is loaded, which provides both training and test images.
+Preprocessing: The RGB images are normalized to have values between 0 and 1. The grayscale images are also normalized similarly. The data is then reshaped to match the input requirements of the neural network.
 
 **Model Architecture**
-Encoder Model:
-inputs = Input(shape=(img_dim, img_dim, 1), name='encoder_input')
-x = Conv2D(64, (3, 3), strides=2, activation='relu', padding='same')(inputs)
-x = Conv2D(128, (3, 3), strides=2, activation='relu', padding='same')(x)
-x = Conv2D(256, (3, 3), strides=2, activation='relu', padding='same')(x)
-x = Flatten()(x)
-latent = Dense(256, name='latent_vector')(x)
-encoder = Model(inputs, latent, name='encoder_model')
+The autoencoder consists of three main components:
 
-Decoder Model:
-latent_inputs = Input(shape=(256,), name='decoder_input')
-x = Dense(shape[1]*shape[2]*shape[3])(latent_inputs)
-x = Reshape((shape[1], shape[2], shape[3]))(x)
-x = Conv2DTranspose(256, (3, 3), strides=2, activation='relu', padding='same')(x)
-x = Conv2DTranspose(128, (3, 3), strides=2, activation='relu', padding='same')(x)
-x = Conv2DTranspose(64, (3, 3), strides=2, activation='relu', padding='same')(x)
-outputs = Conv2DTranspose(3, (3, 3), activation='sigmoid', padding='same', name='decoder_output')(x)
-decoder = Model(latent_inputs, outputs, name='decoder_model')
+**Encoder Model**
+The encoder is responsible for compressing the input images into a lower-dimensional latent space. It consists of several convolutional layers that progressively reduce the spatial dimensions while increasing the number of feature channels. The final output of the encoder is a dense layer that represents the latent vector.
 
-Autoencoder Model:
-autoencoder = Model(inputs, decoder(encoder(inputs)), name='autoencoder')
+**Decoder Model**
+The decoder takes the latent vector produced by the encoder and reconstructs the original image. It uses transposed convolutional layers to progressively upscale the latent representation back to the original image dimensions. The final output layer generates the RGB image.
+
+**Autoencoder Model**
+The autoencoder model combines the encoder and decoder. It trains the network to minimize the reconstruction loss between the original RGB images and the colorized images generated by the decoder. The loss function used is mean squared error (MSE), and the optimizer is Adam.
 
 **Training**
-Compile and Train the Model:
-autoencoder.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
+The autoencoder model is trained on the grayscale images with the corresponding RGB images as targets. During training, various callbacks are used to manage the learning rate and save the best model based on validation loss. The training process involves:
 
-lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1), cooldown=0, patience=5, verbose=1, min_lr=0.5e-6)
-save_dir = os.path.join(os.getcwd(), 'saved_models')
-model_name = 'colorized_ae_model.keras'
-if not os.path.isdir(save_dir):
-    os.makedirs(save_dir)
-filepath = os.path.join(save_dir, model_name)
-checkpoints = ModelCheckpoint(filepath=filepath, monitor='val_loss', verbose=1, save_best_only=True)
+Epochs: The model is trained over a specified number of epochs.
+Batch Size: The data is processed in batches for each epoch.
+Callbacks: Learning rate reduction and model checkpoint callbacks are used to improve training efficiency and save the best-performing model.
 
-callbacks = [lr_reducer, checkpoints]
+**Saving and Evaluation**
+After training, the model is saved to a specified directory. The best model based on validation performance is saved for future use. The training process is monitored for improvements in validation loss, and the model's performance is evaluated based on its ability to reconstruct color images from grayscale inputs.
 
-autoencoder.fit(x_train_Gray, x_train, validation_data=(x_test_Gray, x_test), epochs=30, batch_size=32, callbacks=callbacks)
-
-**Results**
-The trained model will be saved in the saved_models directory with the filename colorized_ae_model.keras. You can use this model to colorize grayscale images by loading it and using it for inference.
+**Usage**
+To use the model for colorizing new grayscale images, you can load the saved model and pass grayscale images through the encoder and decoder to obtain colorized outputs.
