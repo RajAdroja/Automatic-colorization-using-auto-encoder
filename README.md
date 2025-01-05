@@ -107,7 +107,3 @@ The trained model is saved as an HDF5 file and can be downloaded for later use.
 
 - [CIFAR-10 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html)
 - [Keras Documentation](https://keras.io)
-
----
-
-Feel free to modify this README file as needed!
